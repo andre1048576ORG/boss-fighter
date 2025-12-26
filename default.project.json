@@ -1,0 +1,42 @@
+{
+  "name": "obtainable-training",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Packages": {
+        "$path": "Packages"
+      },
+      "UI": {
+        "$path": "src/ui"
+      }
+    },
+    "Workspace": {
+        "$path": "src/workspace"
+    },
+
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+
+    "ServerStorage": {
+      "Stories": {
+        "$path": "src/stories"
+      }
+    }
+
+  }
+}
