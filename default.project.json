@@ -1,7 +1,5 @@
 {
   "name": "boss-fight",
-  "placeId": 0,
-  "gameId": 0,
   "tree": {
     "$className": "DataModel",
 
