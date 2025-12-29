@@ -48,7 +48,7 @@ local placeId = tonumber(findEnvironmentVariable(configuration, "PlaceId"))
 local gameId = tonumber(findEnvironmentVariable(configuration, "GameId"))
 local platform = findEnvironmentVariable(configuration, "Platform")
 
-local baseProject = fs.readFile "baseProject.json"
+local baseProject = fs.readFile "base.project.json"
 local startIndex = string.find(baseProject, '"tree"')
 
 local newProject = insert(baseProject, `"placeId":{placeId},\n\t"gameId":{gameId},\n\t`, startIndex - 1)
