@@ -5,4 +5,7 @@
 sourcemap.json
 Packages
 
+.SECRET
+default.project.json
+
 /*.rbxl

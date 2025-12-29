@@ -3,28 +3,26 @@ local fs = require "@lune/fs"
 local process = require "@lune/process"
 --local DateTime = require "@lune/datetime"
 
-if #process.args == 0 then
-	error "did not provide the file to syncback"
-end
+local file = "BossFight.rbxl"
 
-local file = process.args[1]
+return function()
+	local lastModified: DateTime = fs.metadata(file).modifiedAt
 
-local lastModified: DateTime = fs.metadata(file).modifiedAt
+	local function onModified(modifiedTime: DateTime)
+		--print(fs.readFile(file))
 
-local function onModified(modifiedTime: DateTime)
-	--print(fs.readFile(file))
-
-	process.exec("rojo", { "syncback", "--input", file, "./syncback.project.json", "-y" })
-	print(`synced back changes at {modifiedTime:formatLocalTime "%b %d %Y %T"}`)
-end
-
-onModified(lastModified)
-
-while true do
-	local currModified = fs.metadata(file).modifiedAt
-	if currModified ~= lastModified then
-		lastModified = currModified
-		onModified(currModified)
+		process.exec("rojo", { "syncback", "--input", file, "./syncback.project.json", "-y" })
+		print(`synced back changes at {modifiedTime:formatLocalTime "%b %d %Y %T"}`)
 	end
-	task.wait(1)
+
+	onModified(lastModified)
+
+	while true do
+		local currModified = fs.metadata(file).modifiedAt
+		if currModified ~= lastModified then
+			lastModified = currModified
+			onModified(currModified)
+		end
+		task.wait(1)
+	end
 end
