@@ -38,7 +38,6 @@ end
 
 local placeId = tonumber(findEnvironmentVariable(configuration, "PlaceId"))
 local gameId = tonumber(findEnvironmentVariable(configuration, "GameId"))
-local platform = findEnvironmentVariable(configuration, "Platform")
 
 local baseProject = fs.readFile "base.project.json"
 local startIndex = string.find(baseProject, '"tree"')
@@ -50,15 +49,6 @@ fs.writeFile("default.project.json", newProject)
 process.exec("rojo", { "build", "-o", robloxPlaceName })
 
 print "starting executing"
-task.spawn(function()
-	if platform == "Linux" then
-		process.exec("flatpak", { "run", "org.vinegarhq.Vinegar", "BossFight.rbxl" })
-	else
-		print "ok now open the place"
-	end
-end)
-task.spawn(function()
-	process.exec("rojo", { "serve", "default.project.json" })
-end)
+process.create(if process.os == "windows" then "explorer" else "open", { "BossFight.rbxl" })
+process.create("rojo", { "serve", "default.project.json" })
 liveSyncback()
-print "done executin22g"
