@@ -1,60 +1,61 @@
 local Players = game:GetService "Players"
+local ReplicatedStorage = game:GetService "ReplicatedStorage"
+local Debris = game:GetService "Debris"
 
-local player: Player = Players.LocalPlayer
-local PlayerScripts: PlayerScripts = player.PlayerScripts
-local combat_controls: InputContext = PlayerScripts:WaitForChild "combat_controls"
-local rollAction: InputAction = combat_controls.Roll
-local parryAction: InputAction = combat_controls.Parry
+local movement_config = require(ReplicatedStorage.Shared.movement_config)
 
-local ROLL_COST = 10
-local ROLL_COOLDOWN = 1
+local player = Players.LocalPlayer
+local combat_controls: InputContext = player.PlayerScripts:WaitForChild("Client").combat_controls
+local roll_action: InputAction = combat_controls.Roll
+local parry_action: InputAction = combat_controls.Parry
 
-local roll = setmetatable({
-	cooldown = 0,
-}, {
-	__index = function(self, index)
-		return error(`Tried to index nonexistent state in roll: {index}`)
-	end,
-	__call = function(self, ...)
-		self.cooldown = ROLL_COOLDOWN
-		rollAction.Enabled = false
-		coroutine.wrap(function()
-			while self.cooldown > 0 do
-				local delta = task.wait()
-				self.cooldown -= delta
-			end
-			rollAction.Enabled = true
-		end)()
-	end,
-})
+local can_roll = true
 
 function onRoll()
-	print "Trying roll"
-	local character: Model = player.Character
-	local humanoid: Humanoid? = if character then character.Humanoid else nil
-
-	assert(humanoid, `{player.Name} tried rolling with no character.`)
-	local stamina: number = humanoid:GetAttribute "Stamina"
-	if stamina < ROLL_COST or roll.cooldown > 0 then
-		return -- not enough stamina or on cooldown
+	print "Tried rolling"
+	local character: Model? = player.Character
+	local humanoid: Humanoid? = if character then character:FindFirstChildOfClass "Humanoid" else nil
+	if not humanoid then
+		return
 	end
-	humanoid:SetAttribute("Stamina", math.max(0, stamina - ROLL_COST))
-	print(`Successful roll. {humanoid:GetAttribute "Stamina"} stamina remaining.`)
-	roll()
+
+	local character_controller = character:FindFirstChild "character_controller"
+	local event: RemoteEvent = if character_controller then character_controller:FindFirstChild "roll_event" else nil
+	assert(event)
+
+	local stamina: number = humanoid:GetAttribute "Stamina"
+	if stamina < movement_config.movement_costs.roll or not can_roll then
+		return
+	end
+	can_roll = false
+	task.delay(movement_config.movement_cooldowns.roll, function()
+		can_roll = true
+	end)
+	event:FireServer()
+	local velocity = Instance.new "LinearVelocity"
+	velocity.MaxForce = math.huge
+	velocity.VectorVelocity = if humanoid.MoveDirection ~= Vector3.zero
+		then humanoid.MoveDirection
+		else character.PrimaryPart.CFrame.LookVector
+	velocity.VectorVelocity *= Vector3.new(1, 0, 1) * 100
+	velocity.Attachment0 = character.HumanoidRootPart.RootAttachment
+	velocity.Parent = character
+	Debris:AddItem(velocity, 0.1)
 end
 
-rollAction.Pressed:Connect(onRoll)
+function onParry()
+	print "Tried parrying"
+	local character: Model? = player.Character
+	local humanoid: Humanoid? = if character then character:FindFirstChildOfClass "Humanoid" else nil
+	if not humanoid then
+		return
+	end
 
-function onParry() end
-
-parryAction.Pressed:Connect(onParry)
-
-function onCharacterAdded(character: Model)
-	combat_controls.Enabled = true
-	print "Enabling combat controls"
+	local character_controller = character:FindFirstChild "character_controller"
+	local event: RemoteEvent = if character_controller then character_controller:FindFirstChild "parry_event" else nil
+	assert(event)
+	event:FireServer()
 end
 
-if player.Character then
-	onCharacterAdded(player.Character)
-end
-player.CharacterAdded:Connect(onCharacterAdded)
+roll_action.Pressed:Connect(onRoll)
+parry_action.Pressed:Connect(onParry)
