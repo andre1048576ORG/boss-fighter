@@ -1,0 +1,31 @@
+{
+    "ClassName": "InputContext",
+    "Children": [
+        {
+            "ClassName": "InputAction",
+            "Name": "Roll",
+            "Children": [
+                {
+                    "ClassName": "InputBinding",
+                    "Name": "Keyboard",
+                    "Properties": {
+                        "KeyCode": "Q"
+                    }
+                }
+            ]
+        },
+        {
+            "ClassName": "InputAction",
+            "Name": "Parry",
+            "Children": [
+                {
+                    "ClassName": "InputBinding",
+                    "Name": "Keyboard",
+                    "Properties": {
+                        "KeyCode": "F"
+                    }
+                }
+            ]
+        }
+    ]
+}
