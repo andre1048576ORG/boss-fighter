@@ -3,7 +3,6 @@ local RunService = game:GetService "RunService"
 local vide = require(ReplicatedStorage.Packages.vide)
 local vide_sources = require(ReplicatedStorage.Shared.vide_sources)
 local create = vide.create
-local source = vide.source
 local derive = vide.derive
 local action = vide.action
 local cleanup = vide.cleanup
